@@ -1,0 +1,73 @@
+
+#use <string>
+#use <conio>
+#use <rand>
+
+// CLIENT INTERFACE
+
+/*************************/
+/* client-side interface */
+/*************************/
+
+// typedef ______* hashtable_elem;
+// typedef ______ key;
+typedef struct char_with_string* hashtable_elem;
+typedef char key;
+
+int hash(key k);
+
+bool key_equal(key k1, key k2);
+
+string key_to_string(key k);
+
+key elem_key(hashtable_elem e)
+//@requires e != NULL;
+;
+
+void print_elem(hashtable_elem e)
+//@requires e != NULL;
+;
+
+// ----------------------------------------------------------------------
+// CLIENT IMPLEMENTATION
+
+struct char_with_string {
+  char c; 
+  string s;
+};
+
+// Returns an integer, not necessarily  positive
+int hash (key k)
+{
+  rand_t r = init_rand(char_ord(k));
+  return rand(r);
+}
+
+bool key_equal (key key1, key key2)
+{
+  return key1 == key2;
+}
+
+string key_to_string(key k)
+{
+  return string_fromchar(k);
+}
+
+key elem_key(hashtable_elem e)
+//@requires e != NULL;
+{
+  return e->c;
+}
+
+key elem_char (hashtable_elem e) {
+  return e->c;
+}
+
+void print_elem (hashtable_elem e)
+{
+  print("<");
+  printchar (e->c);
+  print(",");
+  print(e->s);
+  print(">");
+}

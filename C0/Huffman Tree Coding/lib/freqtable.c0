@@ -1,0 +1,113 @@
+
+
+// Function to read in a frequency table from a file
+#use <string>
+#use <parse>
+#use <conio>
+
+#use "readfile.c0"
+
+/* Interface */
+
+typedef struct freqtable* freqtable;
+
+struct freqtable {
+    int length;
+    char[] characters;
+    int[] frequencies;
+};
+
+bool is_freqtable(freqtable table); // invariant
+freqtable read_freqtable(string filename); //create a table of requencies
+
+
+/* Implementation */
+
+bool all_non_NUL(char[] chars, int n)
+//@requires n <= \length(chars);
+{
+	for (int i = 0; i < n; i++) if (chars[i] == '\0') return false;
+	return true;
+}
+
+bool all_strictly_positive(int[] freqs, int n)
+//@requires n <= \length(freqs);
+{
+	int i;
+	for (i = 0; i < n; i++) if (freqs[i] <= 0) return false;
+	return true;
+}
+
+bool is_freqtable(freqtable table)
+//@requires table != NULL;
+//@requires table->length == \length(table->characters);
+//@requires table->length == \length(table->frequencies);
+{
+	return all_non_NUL(table->characters, table->length)
+		&& all_strictly_positive(table->frequencies, table->length);
+}
+
+
+int theint(string s)
+//@ensures \result > 0;
+{
+  int* pint = parse_int(s,10);
+  assert(pint != NULL); //, "invalid frequency");
+  assert(*pint > 0); //, "frequency must be > 0");
+  return *pint;
+}
+
+char thechar(string s)
+//@ensures \result != '\0';
+{
+  char c;
+  assert(string_length(s) == 1); //, "not a single character");
+  c = string_charat(s, 0);
+  assert(c != '\0'); //, "NUL characters not allowed");
+  return c;
+}
+
+freqtable read_freqtable(string filename)
+//@ensures is_freqtable(\result);
+{
+
+  // FIXME do this without looping through the file twice?
+
+  int numlines = 0;
+  {
+    file_t freqf = file_read(filename);
+    for (; ! file_eof(freqf) ; file_readline(freqf)) {
+      numlines = numlines+1;
+    }
+    file_close(freqf);
+  }
+  freqtable table = alloc(struct freqtable);
+  table->length = numlines;
+  table->characters = alloc_array(char, table->length);
+  table->frequencies = alloc_array(int, table->length);
+  
+  file_t freqf = file_read(filename);
+  for (int i = 0; i < numlines; i++)
+    {
+      string l = file_readline(freqf);
+      if (string_length(l) < 3) {
+        error("Frequency file line should have the form <char><space><number>");
+      }
+      else {
+        if (string_charat(l,1) == ' ') {
+          table->characters[i] = string_charat(l,0);
+          table->frequencies[i] = theint(string_sub(l,2,string_length(l)));
+        }
+        if (string_charat(l,0) == '\\' &&
+            string_charat(l,1) == 'n' &&
+            string_charat(l,2) == ' ')
+          {
+            table->characters[i] = '\n';
+            table->frequencies[i] = theint(string_sub(l,3,string_length(l)));
+          }
+      }
+    }
+  file_close(freqf);
+
+  return table;
+}

@@ -1,0 +1,90 @@
+/* Stacks implemented as (bounded) arrays.
+ *
+ */
+
+/* Interface to stacks of stack_elems */
+
+// typedef __________ stack_elem;
+
+typedef struct stack_header* stack;
+
+bool stack_empty(stack S);      /* O(1) */
+
+stack stack_new(int capacity)
+/*@requires capacity > 0;@*/;         /* O(1) */
+
+void push(stack S, stack_elem e);     /* O(1) */
+
+stack_elem pop(stack S)               /* O(1) */
+/*@requires !stack_empty(S);@*/;
+
+stack_elem peek(stack S)               /* O(1) */
+/*@requires !stack_empty(S);@*/;
+
+int stack_size(stack S);         /* O(1) */
+
+/* Implementation of stacks */
+
+struct stack_header {
+  stack_elem[] data;
+  int top;
+  int capacity;
+};
+
+bool is_stack(stack S)
+{
+  if (S == NULL) return false;
+  if (!(S->top >= -1)) return false;
+  if (!(S->top < S->capacity)) return false;
+  //@assert \length(S->data) == S->capacity;
+  return true;
+}
+
+bool stack_empty(stack S)
+//@requires is_stack(S);
+{
+  return S->top == -1;
+}
+
+stack stack_new(int capacity)
+//@ensures is_stack(\result);
+//@ensures stack_empty(\result);
+{
+  struct stack_header* S = alloc(struct stack_header);
+  S->top = -1;
+  S->capacity = capacity;
+  S->data = alloc_array(stack_elem, S->capacity);
+  return S;
+}
+
+void push(stack S, stack_elem e)
+//@requires is_stack(S);
+//@ensures is_stack(S);
+{
+  if (S->top+1 == S->capacity) error("stack overflow");
+  S->top++;
+  S->data[S->top] = e;
+}
+
+stack_elem pop(stack S)
+//@requires !stack_empty(S);
+//@requires is_stack(S);
+//@ensures is_stack(S);
+{
+  stack_elem r = S->data[S->top];
+  S->top--;
+  return r;
+}
+
+stack_elem peek(stack S)
+//@requires is_stack(S);
+//@requires !stack_empty(S);
+{
+  return S->data[S->top];
+}
+
+int stack_size(stack S)
+//@requires is_stack(S);
+{
+  return S->top+1;
+}

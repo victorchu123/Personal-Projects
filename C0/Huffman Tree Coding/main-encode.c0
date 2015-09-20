@@ -1,0 +1,45 @@
+#use <conio>
+#use <args>
+#use <string>
+
+//encodes the file text including the newlines
+//ignores the carriage returns (which readlne strips)---sorry windows people, open it in emacs
+int main() {
+
+  string* freq_filename = alloc(string);
+  string* input_filename = alloc(string);
+
+  args_string("-f", freq_filename);
+  args_string("-i", input_filename);
+  args_parse();
+
+  string l1 = "\nPlease use as follows: ";
+  string l2 = "encode -f <frequency file> -i <input file>";
+  string usage = string_join(l1,l2);
+
+  if (string_equal("", *freq_filename) || string_equal("", *input_filename)) {
+    error(usage);
+  }
+
+  // assumed to include \n
+  // and that 0 is something innocuous to print, like space
+  freqtable table = read_freqtable(*freq_filename);
+
+  hufftree H = build_hufftree(table->characters, table->frequencies, table->length);
+  hashtable M = hufftree_to_hashtable(H);
+
+  file_t inputf = file_read(*input_filename);
+
+  while (! file_eof(inputf))
+  {
+    // readline strips the \n, so we want to put it back on.  
+    string s = string_join(file_readline(inputf),"\n");
+    bitstring encoded = encode_map(M,s);
+    int enclen = string_length(encoded);
+    println(encoded); //insert some newlines because decode works faster in small chunks
+  }
+
+  file_close(inputf);
+
+  return 2;
+}
