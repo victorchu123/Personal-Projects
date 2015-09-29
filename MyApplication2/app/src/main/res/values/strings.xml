@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Neverforget</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_scan">Scanning</string>
+    <string name="recButton">Existing Key</string>
+    <string name="Sync">Synced</string>
+    <string name="newCapture">New Key</string>
+    <string name="title_activity_capture">Capturing</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="Flash">Flash</string>
+    <string name="shutter">Shutter</string>
+    <string name="title_activity_cap">CapActivity</string>
+    <string name="title_activity_cv">CVActivity</string>
+    <string name="action_info">Info (web site)</string>
+    <string name="action_rgbpreview">RGB Preview</string>
+    <string name="action_cannyedges">Canny Edges</string>
+    <string name="action_houghcircles">Hough Circles</string>
+    <string name="action_houghlines">Hough Lines</string>
+    <string name="action_colourcontour">Colour Contour</string>
+    <string name="action_colourquad">Colour Quad</string>
+    <string name="action_facedetect">Face Detect</string>
+    <string name="action_gftt">Good Features To Track</string>
+    <string name="action_opflow">Optical Flow</string>
+    <string name="action_swapcamera">Swap Camera</string>
+    <string name="action_toggletitles">Toggle Titles</string>
+
+
+
+</resources>
