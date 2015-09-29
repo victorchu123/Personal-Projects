@@ -76,14 +76,10 @@ public class MainActivity extends Activity implements Scanner.SyncListener {
     //on scanning button press
 
     public void onScanButtonClicked(View view) {
-        /*if (compatible) {
+        //starts moodstocks scanner api
+        if (compatible) {
             startActivity(new Intent(this, ScanActivity.class));
 
-        }*/
-
-        //starts CVActivity.java
-        try {
-            startActivity(new Intent(this, CVActivity.class));
         }
         catch(Exception e){
             e.printStackTrace();
