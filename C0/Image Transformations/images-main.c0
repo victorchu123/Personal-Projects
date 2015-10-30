@@ -1,0 +1,169 @@
+#use <conio>
+#use <string>
+#use <img>
+#use <parse>
+#use <args>
+#use <util>
+
+// yay defunctionalization
+
+pixel[] do_transform(pixel[] original, 
+                     int width, int height, 
+                     string transform_name)
+{
+  if (string_equal(transform_name , "remove_red")) {
+    return remove_red(original, width, height);
+  }
+  else if (string_equal(transform_name , "manipulate")) {
+    return manipulate(original, width, height);
+  }
+  else if (string_equal(transform_name , "rotate90")) {
+    return rotate90(original, width, height);
+  }
+  else if (string_length(transform_name) == 9 &&
+           string_equal(string_sub(transform_name,0,8), "quantize") &&
+           parse_int(string_sub(transform_name,8,9),10) != NULL
+           ) {
+    return quantize(*parse_int(string_sub(transform_name,8,9),10),original, width, height);
+  }
+  else if (string_equal(transform_name , "rotate")) {
+    return rotate(original, width, height);
+  }
+  else {
+    error(string_join("unknown transform name: " , transform_name));
+  }
+}
+
+int expected_result_width(int width, int height, string transform_name) {
+  if (string_equal(transform_name , "remove_red")) {
+    return width;
+  }
+  else if (string_equal(transform_name , "manipulate")) {
+    return width;
+  }
+  else if (string_equal (transform_name , "rotate90")) {
+    return width;
+  }
+  else if (string_length(transform_name) == 9 &&
+           string_equal(string_sub(transform_name,0,8), "quantize") &&
+           parse_int(string_sub(transform_name,8,9),10) != NULL
+           ) {
+    return width;
+  }
+  else if (string_equal (transform_name , "rotate")) {
+    return 2*width;
+  }
+  else {
+    error(string_join("unknown transform name: " , transform_name));
+  }
+}
+
+int expected_result_height(int width, int height, string transform_name) {
+  if (string_equal (transform_name , "remove_red")) {
+    return height;
+  }
+  else if (string_equal(transform_name , "manipulate")) {
+    return height;
+  }
+  else if (string_equal (transform_name , "rotate90")) {
+    return height;
+  }
+  else if (string_length(transform_name) == 9 &&
+           string_equal(string_sub(transform_name,0,8), "quantize") &&
+           parse_int(string_sub(transform_name,8,9),10) != NULL
+           ) {
+    return height;
+  }
+  else if (string_equal (transform_name , "rotate")) {
+    return 2*height;
+  }
+  else {
+    error(string_join("unknown transform name: " , transform_name));
+  }
+}
+
+void images_main(string input, string output, string transform_name)
+{
+  print("Input image:  ");
+  println(input);
+  print("Output image: ");
+  println(output);
+
+  /* Load source image */
+  image_t source = image_load(input);
+  if (source == NULL) error("Could not load source image");
+  int width = image_width(source);
+  int height = image_height(source);
+  pixel[] inpixels = image_data(source);
+
+  print("Loaded image.  Dimensions are ");
+  printint(width);
+  print(" by ");
+  printint(height);
+  println(".");
+
+  /* Run transformation */
+  println(string_join("Running transformation ", transform_name));
+  pixel[] gbpixels = do_transform(inpixels, width, height, transform_name);
+  println("done.");
+
+  int new_width = expected_result_width(width,height,transform_name);
+  int new_height = expected_result_height(width,height,transform_name);
+
+  //@assert \length(gbpixels) == new_width * new_height;
+
+  /* Create destination image */
+  image_t dest = image_create(new_width, new_height);
+  pixel[] outpixels = image_data(dest);
+  for (int i = 0; i < new_width * new_height; i++)
+    //@loop_invariant 0 <= i;
+    {
+      outpixels[i] = gbpixels[i];
+    }
+
+  /* Save result */
+  print("Saving output...");
+  image_save(dest, output);
+  println("done.");
+}
+
+string default_output(string input, string name) {
+  int len = string_length(input);
+  if (!(len > 4 && string_equal(".png", string_sub(input, len-4, len)))) {
+    error("Input file does not end with .png");
+  }
+  
+  string res = string_sub(input, 0, len-4);
+  res = string_join(res, "_");
+  res = string_join(res, name);
+  res = string_join(res, ".png");
+
+  return res;
+}
+
+int main() {
+  string* output = alloc(string);
+  string* input = alloc(string);
+  string* transform = alloc(string);
+
+  args_string("-o", output);
+  args_string("-i", input);
+  args_string("-t", transform);
+  args_parse();
+
+  string l1 = "\nPlease use as follows: ";
+  string l2 = "image -t <transform> -i <input image> [-o <output image>]";
+  string l3 = "\nTransformations: remove_red, quantize, rotate90, rotate, manipulate";
+
+  if (string_equal("", *input)) {
+    error(string_join(l1, string_join(l2, l3)));
+  }
+
+  if (string_equal("", *output)) {
+    *output = default_output(*input, *transform);
+  }
+
+  images_main(*input, *output, *transform);
+
+  return 0;
+}

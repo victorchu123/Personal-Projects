@@ -1,0 +1,20 @@
+#use <conio>
+#use <string>
+#use <img>
+#use <util>
+
+void color(int x) {
+
+  int dim = 200;
+
+  /* Create destination image */
+  image_t dest = image_create(dim, dim);
+  int[] outpixels = image_data(dest);
+  for (int i = 0; i < dim * dim; i++)
+    //@loop_invariant 0 <= i;
+    {
+      outpixels[i] = x;
+    }
+  image_save(dest, string_join("images/pixel",string_join(int2hex(x),".png")));
+
+}

@@ -1,0 +1,283 @@
+/*
+ * Text buffers
+ * 
+ * The back end for a one-character text editor, a doubly-linked list
+ * whose elements are 16-character gap buffers.
+ * 
+ * COMP 211 Principles of Imperative Computation */
+
+/*** Interface ***/
+
+typedef dll_pt tbuf;
+
+bool is_tbuf(struct dll_pt_header* B);
+
+tbuf tbuf_new();            /* Creates an empty text buffer, with            */
+                            /*   gap buffers of size 16                      */
+void tbuf_split_pt(tbuf B); /* Splits a full point into two nodes, so that   */
+                            /*    the new point is not full                  */
+void tbuf_forward(tbuf B);  /* Move the cursor forward 1 char, to the right  */
+void tbuf_backward(tbuf B); /* Move the cursor backward 1 char, to the left  */
+void tbuf_insert(tbuf B, char c); /* Insert the char c before the cursor     */
+void tbuf_delete(tbuf B);         /* Delete the character before the cursor, */
+                                  /*   also deletes the point if it is empty */
+
+/*** Implementation ***/
+
+bool alignment(dll_pt B){
+
+	for(dll* cur = B->point->next; cur!= NULL; cur= cur->next){
+		if (cur->data!= NULL && !gapbuf_at_left(cur->data)){
+			return false;
+		}
+	}
+	for(dll* cur = B->point->prev; cur!= NULL; cur = cur->prev){
+		if (cur->data!= NULL && !gapbuf_at_right(cur->data)){
+			return false;
+		} 
+	}
+	return true;
+}
+
+bool empty_tbuf(dll_pt B)
+{
+	bool oneEmpty = false;
+	bool allNonEmpty = false;
+
+	if(B->start->next == B->end){
+		return false;
+	}
+
+	if (B->start->next->next == B->end){
+		if(!gapbuf_empty(B->start->next->data)){
+			oneEmpty = false;
+		}else{
+			oneEmpty = true;
+		}
+
+	}
+	if(oneEmpty == false){
+		for(dll* cur = B->start->next; cur!= NULL; cur = cur->next ){
+			if (cur->data!= NULL && gapbuf_empty(cur->data)){
+				return false;
+			}
+		}
+		allNonEmpty = true;
+	}
+
+	if(oneEmpty == true || allNonEmpty == true){
+		return true;
+	}
+	return false;
+}
+
+bool is_tbuf(struct dll_pt_header* B){
+
+	if (!is_dll_pt (B)){
+		return false;
+	}	
+	for (dll* cur = B->start->next; cur!= NULL; cur = cur->next){
+		if(cur->data!= NULL && !is_gapbuf(cur->data)){
+			return false;
+		}
+		if(cur->data!= NULL && cur->data->limit != 16){
+			return false;
+		}
+	}
+	if(!alignment(B)){
+		return false;
+	}
+	if(!empty_tbuf(B)){
+		return false;
+	}
+	return true;
+}
+
+void test_is_tbuf(){
+
+	gapbuf G = gapbuf_new(16);
+	dll_pt D = dll_pt_new(G);
+	assert(is_tbuf(D));
+
+	G = gapbuf_new(15);
+	D = dll_pt_new(G);
+	assert(!is_tbuf(D));
+
+	G = gapbuf_new(16);
+	D = dll_pt_new(G);
+
+	assert(is_tbuf(D));
+
+	for (int i = 0; i < G->limit ; i++){
+		gapbuf_insert(G, 'a');
+	}
+
+	assert(is_tbuf(D));
+	gapbuf L = gapbuf_new(16);
+	dll_pt_insert_before(D, L);
+	assert(!is_tbuf(D));
+
+	for (int i = 0; i < L->limit ; i++){
+		gapbuf_insert(L, 'a');
+	}
+
+	assert(is_tbuf(D));
+	gapbuf_backward(L);
+	assert(!is_tbuf(D));
+	gapbuf_forward(L);
+
+	gapbuf J = gapbuf_new(16);
+	dll_pt_insert_after(D, J);
+
+	assert(!is_tbuf(D));
+
+	for (int i = 0; i < J->limit ; i++){
+		gapbuf_insert(J, 'a');
+	}
+
+	assert(!is_tbuf(D));
+
+	for (int i = 0; i < J->limit; i = i + 1)
+	{
+		gapbuf_backward(J);
+	}
+
+	assert(gapbuf_at_left(J));
+	assert(is_tbuf(D));
+}
+
+tbuf tbuf_new()
+//@ensures is_tbuf(\result);
+{
+	gapbuf G = gapbuf_new(16);
+	dll_pt D = dll_pt_new(G);
+	return D;
+}
+
+void tbuf_split_pt(tbuf B)
+//@requires is_tbuf(B);
+//@ensures is_tbuf(B);
+{
+	gapbuf C = gapbuf_new(16);
+	gapbuf D = gapbuf_new(16);
+	bool firstNode = false;
+
+	if(B->point->data->gap_start < 8){
+		C->gap_start = B->point->data->gap_start;
+		C->gap_end = C->gap_start + 8;
+
+		for(int i = 0; i< B->point->data->gap_start; i++){
+			C->buffer[i] = B->point->data->buffer[i];
+		}
+		
+		for(int i = 15; i>= C->gap_end; i--){
+			C->buffer[i] = B->point->data->buffer[i-8];
+		}
+
+		D->gap_start = 0;
+		D->gap_end = 8;
+
+		for(int i = 8; i< 16; i++){
+			D->buffer[i] = B->point->data->buffer[i];
+		}
+
+		firstNode = true;
+	}
+
+	if(B->point->data->gap_start>= 8){
+		
+		C->gap_start = 8;
+		C->gap_end = 16; 
+
+		for(int i = 0; i< 8; i++){
+			C->buffer[i] = B->point->data->buffer[i];
+
+		}
+
+		D->gap_start = B->point->data->gap_end - 8 ;
+		D->gap_end = B->point->data->gap_end;
+
+		for(int i = 8; i< B->point->data->gap_start; i++){
+			D->buffer[i-8] = B->point->data->buffer[i];
+		}
+
+		for(int i = 15; i>= D->gap_end; i--){
+			D->buffer[i] = B->point->data->buffer[i];
+		}
+	}
+
+	dll_pt_insert_before(B, C);
+	dll_pt_insert_after(B,D);
+
+	if(firstNode == false){
+		dll_pt_delete(B);
+	}
+	else{
+		dll_pt_delete(B);
+		dll_pt_backward(B);
+	}
+}
+
+void tbuf_insert(tbuf B, char c)
+//@requires is_tbuf(B);
+//@ensures is_tbuf(B);
+{
+	if(gapbuf_full(B->point->data)){
+		tbuf_split_pt(B);
+		gapbuf_insert(B->point->data, c);
+	}
+	else{
+		gapbuf_insert(B->point->data, c);
+	}
+}
+
+void tbuf_forward(tbuf B)
+//@requires is_tbuf(B);
+//@ensures is_tbuf(B);
+{
+	if(gapbuf_at_right(B->point->data)&& B->point->next != B->end){
+		B->point = B->point->next;
+		gapbuf_forward(B->point->data);
+	}
+	else if(gapbuf_at_right(B->point->data) && B->point->next == B->end){
+
+	}
+	else{
+		gapbuf_forward(B->point->data);
+	}
+}
+
+void tbuf_backward(tbuf B)
+//@requires is_tbuf(B);
+//@ensures is_tbuf(B);
+{
+	if(gapbuf_at_left(B->point->data) && B->point->prev != B->start){
+		B->point = B->point->prev;
+		gapbuf_backward(B->point->data);
+	}
+	else if(gapbuf_at_left(B->point->data) && B->point->prev == B->start){
+
+	}
+	else{
+		gapbuf_backward(B->point->data);
+	}
+
+}
+
+void tbuf_delete(tbuf B) 
+//@requires is_tbuf(B);
+//@ensures is_tbuf(B);
+{
+	if(gapbuf_at_left(B->point->data) && B->point->prev != B->start){
+		B->point = B->point->prev;
+		gapbuf_delete(B->point->data);
+	}	
+	else if(gapbuf_at_left(B->point->data) && B->point->prev == B->start){
+	}
+	else{
+		gapbuf_delete(B->point->data);
+		if( !(B->point->next == B->end && B->point->prev == B->start) && gapbuf_empty(B->point->data) ){
+			dll_pt_delete(B);
+		}
+	}
+}

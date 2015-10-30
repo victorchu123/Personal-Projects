@@ -1,0 +1,17 @@
+/* Assumes that pixel is already defined to be an int (pixel.c0) */
+/* typedef int pixel; */
+
+#use <util>
+
+pixel[] remove_red (pixel[] A, int width, int height)
+//@requires width >= 0 && height >= 0;
+//@requires \length(A) == (height*width);
+//@ensures \length(\result) == (height*width); 
+{
+  pixel[] B = alloc_array(pixel, height*width);
+
+  for (int i = 0; i< (height *width); i++){
+		B[i] = A[i]& 0xFF00FFFF;
+	}
+  return B;
+}

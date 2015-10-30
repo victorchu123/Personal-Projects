@@ -1,0 +1,9 @@
+#use <util>
+#use <conio>
+
+typedef int pixel;
+
+void printhex(int x) {
+  println(string_join("0x",int2hex(x)));
+}
+

@@ -1,0 +1,166 @@
+/* 
+ * Hash tables 
+ * 
+ */
+
+#use <conio>
+#use <util>
+
+/**************************/
+/* library side interface */
+/**************************/
+// typedef _______ hashtable;
+
+typedef struct hashtable_header* hashtable;
+
+hashtable hashtable_new(int capacity)
+//@requires capacity > 0;
+  ;
+hashtable_elem hashtable_lookup(hashtable H, key k);    /* O(1) avg. */
+void hashtable_insert(hashtable H, hashtable_elem e)    /* O(1) avg. */
+//@requires e != NULL;
+  ;
+int hashtable_size(hashtable H);              /* O(1) */
+
+/*******************************/
+/* library-side implementation */
+/*******************************/
+
+typedef struct chain_node chain;
+struct chain_node {
+  hashtable_elem data;     /* data != NULL */
+  chain* next;
+};
+
+struct hashtable_header {
+  int size;        /* size >= 0 */
+  int capacity;    /* capacity > 0 */
+  chain*[] table;  /* \length(table) == capacity */
+};
+
+int hash_for_table(key k, int capacity)
+//@requires capacity > 0;
+//@ensures 0 <= \result && \result < capacity;
+{
+  return hash(k) % capacity;
+} 
+
+bool is_chain(chain* l, int expected_key_hash, int capacity) {
+  
+  // could also check for cycles
+
+  for (chain* cur = l; cur != NULL; cur = cur->next) {
+    if (cur->data == NULL) { return false; }
+    if (! (hash_for_table(elem_key(cur->data),capacity) == expected_key_hash)) { return false; }
+  }
+
+  return true;
+}
+
+bool is_hashtable(hashtable H) {
+  if (H == NULL) return false;
+  if (!(H->size >= 0)) return false;
+  if (!(H->capacity > 0)) return false;
+
+  for (int i = 0; i < H->capacity; i = i + 1) {
+    if (! is_chain(H->table[i], i, H->capacity)) { return false; }
+  }
+
+  return true;
+}
+
+hashtable hashtable_new(int capacity)
+//@requires capacity > 0;
+//@ensures is_hashtable(\result);
+{
+  hashtable H = alloc(struct hashtable_header);
+  H->size = 0;
+  H->capacity = capacity;
+  H->table = alloc_array(chain*, capacity);
+  /* initialized to NULL */
+  return H;
+}
+
+int hashtable_size(hashtable H) 
+//@requires is_hashtable(H);
+{
+  return H->size;
+}
+
+/* hashtable_lookup(H, k) returns NULL if key k not present in H */
+hashtable_elem hashtable_lookup(hashtable H, key k)
+//@requires is_hashtable(H);
+{
+  int i = abs(hash(k) % H->capacity);
+  chain* p = H->table[i];
+  while (p != NULL)
+    // loop_invariant is_good_chain (no NULL elems)
+    {
+      //@assert p->data != NULL;
+      if (key_equal(elem_key(p->data), k))
+        return p->data;
+      else
+        p = p->next;
+    }
+  /* not in chain */
+  return NULL;
+}
+
+void hashtable_insert(hashtable H, hashtable_elem e)
+//@requires is_hashtable(H);
+//@requires e != NULL;
+//@ensures is_hashtable(H);
+//@ensures hashtable_lookup(H, elem_key(e)) != NULL;
+{
+  key k = elem_key(e);
+  int i = abs(hash(k) % H->capacity);
+  chain* p = H->table[i];
+
+  // Either replace the element if it's there
+  while (p != NULL) 
+    // loop_invariant is_good_chain (no NULL elems)
+    {
+      if (key_equal(k, elem_key(p->data))) {
+        p->data = e;
+        return;
+      }
+      p = p->next;
+    }
+
+  // Or add it to the chain
+  chain* newc = alloc(chain);
+  newc->data = e;
+  newc->next = H->table[i];
+  H->table[i] = newc;
+  (H->size)++;
+}
+
+int chain_length(chain* p) {
+  int i = 0;
+  while (p != NULL) {
+    i++;
+    p = p->next;
+  }
+  return i;
+}
+
+// Debugging: report the distribution about the hashtable
+void hashtable_stats(hashtable H) 
+//@requires is_hashtable(H);
+{
+  int max = 0;
+  int[] A = alloc_array(int, 11);
+  for(int i = 0; i < H->capacity; i++) {
+    int j = chain_length(H->table[i]);
+    if (j > 9) A[10]++;
+    else A[j]++;
+    if (j > max) max = j;
+  }
+
+  println("Hash table distribution: how many chains have size... ");
+  for(int i = 0; i < 10; i++) {
+    print("..."); printint(i); print(":   "); printint(A[i]); print("\n");
+  }
+  print("...10+: "); printint(A[10]); print("\n");
+  print("Longest chain: "); printint(max); print("\n");
+}

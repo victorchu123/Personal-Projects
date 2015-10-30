@@ -1,0 +1,53 @@
+#use <conio>
+#use <args>
+#use <string>
+
+int main() {
+
+  string* freq_filename = alloc(string);
+  string* input_filename = alloc(string);
+  bool* readbits = alloc(bool);
+
+  args_string("-f", freq_filename);
+  args_string("-i", input_filename);
+  args_parse();
+
+  string l1 = "\nPlease use as follows: ";
+  string l2 = "decode -f <frequency file> -i <input file>";
+  string usage = string_join(l1,l2);
+
+  if (string_equal("", *freq_filename) || string_equal("", *input_filename)) {
+    error(usage);
+  }
+
+  freqtable table = read_freqtable(*freq_filename);
+
+  hufftree H = build_hufftree(table->characters, table->frequencies, table->length);
+
+  file_t inputf = file_read(*input_filename);
+  string todo = file_readline(inputf);
+
+  while (! file_eof(inputf) || ! (string_length(todo) == 0)) {
+    
+    struct decode_result* r = decode(H,todo);
+    
+    if (r != NULL) {
+      printchar(r->decoded);      
+      todo = r->leftovers;
+    }
+    else if (! (file_eof(inputf))) {
+      todo = string_join(todo,file_readline(inputf));
+      // this will trim the '2' at the very end
+      if (string_charat(todo,string_length(todo) - 1) == '2') {
+        todo = string_sub(todo,0,string_length(todo) - 1);
+      }
+    }
+    else {
+      error (string_join("at eof but todo is nonempty and doesn't decode: ", todo));
+    }
+  }
+
+  return 3;
+
+}
+

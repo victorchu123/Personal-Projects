@@ -1,0 +1,13 @@
+/* Assumes that pixel is already defined to be an int (pixel.c0) */
+/* typedef int pixel; */
+
+#use <util>
+
+pixel[] manipulate (pixel[] A, int width, int height)
+{
+  pixel[] B = alloc_array(pixel, 1440000); 
+  for (int i = 0; i < 720000; i = i + 1) { 
+    B[i] = A[i];
+  }
+  return B;
+}

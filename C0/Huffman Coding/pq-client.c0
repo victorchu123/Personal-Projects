@@ -1,0 +1,23 @@
+
+#use <conio>
+
+typedef struct hufftree_node* hufftree;
+typedef hufftree pq_elem;
+
+struct hufftree_node
+{
+    char value;  // '\0' except at leaves
+    int frequency;
+    hufftree left;
+    hufftree right;
+};
+
+int pq_elem_priority (pq_elem T1)
+{
+	return T1->frequency;
+}
+
+void print_data(pq_elem T)
+{
+  print("("); printint(T->frequency); print(","); printchar(T->value); print(")");
+}

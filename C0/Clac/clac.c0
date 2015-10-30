@@ -1,0 +1,154 @@
+/*
+ * Clac, stack-based calculator language
+ *
+ * Principles of Imperative Computation
+ */
+
+#use <string>
+#use <parse>
+#use <conio>
+#use <args>
+#use <util>
+
+/* Return true: clac top-level interpreter will expect more input */
+/* Return false: clac top-level interpreter will exit */
+bool eval(string op, stack S)
+// requires that there are enough numbers on S to perform the operation 'op'
+////@requires stack_size(S) >= 2;
+{
+  // you can uncomment this line to have clac print each operation
+  // as you process it.  
+  print("Read: "); print(op); print("\n");
+
+  if (string_equal(op, "quit")) {
+    // we've written the case for quit for you
+    // you don't need to change this code.  
+    return false; /* do not continue */
+  }
+  else if (string_equal(op,"+")) {
+    // TASK: code for + goes here
+    int totalVal = 0; 
+    int currVal;
+
+    for (int i = 0 ; i < 2; i++){
+       currVal= pop(S);
+       totalVal = totalVal + currVal;
+    }
+    push(S, totalVal);
+  }
+
+  else if (string_equal(op, "*")) {
+    //code for * operation
+    int totalVal = 1; 
+    int currVal;
+
+    for (int i = 0 ; i < 2; i++){
+       currVal= pop(S);
+       totalVal = totalVal * currVal;
+    }
+    push(S, totalVal);
+  }
+
+  else if (string_equal(op, "drop")){
+    //code for drop
+    pop(S);
+  }
+
+  else if (string_equal(op, "swap")){
+    //code for swap 
+    int firstVal; 
+    int secondVal;
+    firstVal = pop(S);
+    secondVal = pop(S);
+    push(S,firstVal);
+    push(S,secondVal);
+  }
+
+  else if (string_equal(op, "dup")){
+    //code for dup
+    int x; 
+    x = pop(S);
+    for (int i= 0; i< 2; i++){
+      push(S, x);
+    }
+  }
+
+  else if (string_equal(op, "third")){
+    //code for third
+    int firstVal; 
+    int secondVal;
+    int thirdVal;
+    firstVal = pop(S);
+    secondVal = pop(S);
+    thirdVal = pop(S);
+    push(S,secondVal);
+    push(S,firstVal);
+    push(S, thirdVal);
+  }
+
+  else {
+    // we've written the case for numbers for you
+    // you don't need to change this code.  
+    /* not defined as an operation name, should be an int */
+    int* p = parse_int(op, 10);
+    if (p == NULL) { /* not an int */
+      /* call error(msg) which prints msg and aborts */
+      error(string_join("undefined operation ", op));
+    }
+    push(S, *p);
+  }
+  return true;                  /* continue */
+}
+
+// BONUS TASK
+bool always_enough(string[] ops, int ops_size, int start_size)
+{
+  string a; 
+  int count = 0;
+
+  for (int i = 0; i < ops_size; i++){
+      a = ops[i];
+      if (string_equal(a,"third")){
+        if(start_size < 3){
+          count++;
+        }
+      }
+      else if (string_equal(a,"+") || string_equal(a, "*")){
+        if(start_size <2){
+          count++;
+        }
+        else{
+          start_size--;
+        }
+      }
+      else if (string_equal(a, "swap")){
+        if(start_size <2){
+          count++;
+        }
+      }
+      else if(string_equal(a,"drop")){
+        if(start_size < 1){
+          count++;
+        }
+        else{
+          start_size--;
+        }
+      }
+      else if(string_equal(a, "dup")){
+        if(start_size < 1){
+          count++;
+        }
+        else{
+          start_size++;
+        }
+      }
+      else{
+        start_size++;
+      }
+  }
+  if (count > 0){
+    return false;
+  }else{
+    return true;
+  }
+}

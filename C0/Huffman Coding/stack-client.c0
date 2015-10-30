@@ -1,0 +1,18 @@
+typedef struct hufftree_with_path* stack_elem;
+
+struct hufftree_with_path {
+  hufftree tree;
+  string path;
+};
+
+stack_elem pair_hufftree_with_path (hufftree tree, string path)
+//@requires tree != NULL;
+//@ensures \result != NULL;
+{
+  
+  stack_elem e = alloc(struct hufftree_with_path);
+  e->tree = tree;
+  e->path = path;
+
+  return e;
+}

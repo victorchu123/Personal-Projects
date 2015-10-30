@@ -1,0 +1,111 @@
+/*
+ * Clac, interface to a stack-based calculator language
+ *
+ * 15-122 Principles of Imperative Computation, Fall 2012
+ * Frank Pfenning
+ */
+
+#use <string>
+#use <parse>
+#use <conio>
+#use <args>
+
+// leaves Q unchanged
+string[] queue_to_array(queue Q)
+{
+  int orig_size = queue_size(Q);
+  string[] r = alloc_array(string,orig_size);
+  for (int i = 0; i < orig_size; i = i + 1)
+    //@loop_invariant 0 <= i;
+    //@ loop_invariant queue_size(Q) == orig_size - i;
+    {
+      r[i] = deq(Q);
+    }
+  
+  //@assert queue_empty(Q);
+
+  // put things back
+  for (int i = 0; i < orig_size; i = i + 1) {
+    enq(Q,r[i]);
+  }
+
+  return r;
+}
+
+// leaves S unchanged
+void print_stack(stack S){
+
+  int orig_size = stack_size(S);
+  stack S2 = stack_new();
+
+  while (! stack_empty(S)) {
+    int x = pop(S);
+    push(S2,x);
+  }
+
+  //S2 is S reversed
+
+  for (int i = 0; i < orig_size; i = i + 1)
+    //@ loop_invariant stack_size(S2) == orig_size - i;
+    {
+      int x = pop(S2);
+      printint(x);
+      if (i != orig_size-1) { 
+        print(",");
+      }
+      push(S,x);
+    }
+
+}
+
+void top_level(queue Q) {
+  /* Q is input queue */
+  stack S = stack_new(); /* operand stack */
+  print("Clac top level\n");
+  bool cont = true;
+  while (cont) {
+    // If there is nothing to be done on the queue and more input, get input
+    if (queue_empty(Q)) {
+      if (!eof()) {
+        print("clac>> ");
+        flush();
+        input_line(Q);
+      }
+      else { return; }
+    }
+
+    if (always_enough(queue_to_array(Q),queue_size(Q),stack_size(S))) {
+      while (cont && !queue_empty(Q)) {
+        cont = eval(deq(Q), S);
+      }
+    }
+    else {
+      println ("Not enough arguments on stack for those operations; ignoring them.");
+      while (! queue_empty(Q)) { deq(Q); }
+    }
+    
+    print("Stack: ");
+    print_stack(S);
+    println("");
+  }
+  print("Bye!\n");
+  return;
+}
+
+int main() {
+  /* pass file names on command line, no flags */
+  /* these will be processed in order */
+  args_t args = args_parse();
+  int argc = args->argc;
+
+  queue Q = queue_new();
+  for (int i = 0; i < argc; i++)
+    //@loop_invariant 0 <= i;
+    {
+      string filename = args->argv[i];
+      print("Loading file "); print(filename); print("\n");
+      input_file(args->argv[i], Q);
+    }
+  top_level(Q);
+  return 0;
+}

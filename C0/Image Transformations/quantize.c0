@@ -1,0 +1,68 @@
+/* Assumes that pixel is already defined to be an int (pixel.c0) */
+/* typedef int pixel; */
+
+#use <util>
+
+pixel quantize_pixel(pixel p, int q) 
+
+//@requires 0 <= q && q < 8;
+//@ensures 0<= q && q<8;
+{ 
+	if(q==0){
+		p = p& 0xFFFFFFFF;
+	}
+	if (q == 1){
+		p = p& 0xFFFEFEFE;
+	}
+	if(q==2){
+		p = p& 0xFFFCFCFC ;
+	}
+	if (q==3){
+		p = p& 0xFFF8F8F8;
+	}
+	if (q == 4){
+		p = p& 0xFFF0F0F0;
+	}
+	if (q==5){
+		p = p& 0xFFE0E0E0;
+	}
+	if (q==6){
+		p = p& 0xFFC0C0C0;
+	}
+	if (q==7){
+		p = p& 0xFF808080;
+	}
+  	return p; 
+}
+
+void test_quantize() {
+  pixel p = quantize_pixel(0xFFFFFFFF, 4);
+  assert(p == 0xFFF0F0F0);
+
+  p = quantize_pixel(0xFAFBFCFD, 0);  
+  assert(p == 0xFAFBFCFD);
+
+  p = quantize_pixel(0xF1F2F3F4, 7);
+  assert(p == 0xF1808080);
+}
+
+pixel[] quantize (int q, pixel[] A, int width, int height)
+//@requires width >= 0 && height >=0;
+//@requires \length(A) == width*height;
+//@requires 0 <= q && q < 8;
+//@ensures \length(\result) == width*height;
+{
+  pixel[] B = alloc_array(pixel, width*height); 
+
+  for (int i = 0; i < (width*height);i++){
+  	B[i] = quantize_pixel(A[i], q);
+  }
+  return B;
+}
+/*Task 8
+
+At quantize 3 to quantize 4, you start seeing the image become darker, 
+but the transition from quantize 4 to 5 is where the pixels really start changing
+in color.
+
+*/

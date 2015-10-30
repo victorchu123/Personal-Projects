@@ -1,0 +1,52 @@
+#use <conio>
+#use <string>
+
+// any character besides ^ < > is inserted
+void process_char(tbuf B, char c) 
+{
+  if (c == '<') {
+    left(B);
+  } else if (c == '>') {
+    right(B);
+  } else if (c == '^') {
+    del(B); 
+  } else {
+    ins(B,c);
+  } 
+}
+
+void process_string(dll_pt B, string s)
+{
+  int limit = string_length(s);
+  for(int i = 0; i < limit; i++) {
+    process_char(B, string_charat(s, i));
+  }
+}
+
+int main() 
+{
+  println("Visualizing DLL with elem as char.");
+
+  tbuf B = tbuf_new();
+
+  visualize_tbuf(B);
+  println("");
+  println("Now you can edit the buffer:");
+  println("The '<' character moves the point backwards");
+  println("The '>' character moves the point forwards");
+  println("The '^' character deletes");
+  println("Any other character inserts at the point");
+  println("");
+  print("Give actions (empty line quits): "); flush();
+  string s = readline();
+
+  while(!string_equal("", s)) {
+    print("     ");
+    process_string(B, s);
+    print("Done. More actions? (empty line quits): "); flush();
+    s = readline();
+  }
+
+  println("Goodbye.");
+  return 0;
+}

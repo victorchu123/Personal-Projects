@@ -1,0 +1,115 @@
+/******************************************************************************
+ *   Bitstrings are represented in as ordinary strings composed
+ *    only of characters "0"and "1".
+ *
+ ******************************************************************************/
+
+#use <string>
+
+typedef string bitstring;
+
+bool is_bitstring(string s)
+{
+	for (int i = 0; i < string_length(s); i++)
+	{
+		char c = string_charat(s, i);
+		if (c != '0' && c != '1') return false;
+	}
+	return true;
+}
+
+char to_byte(string s)
+//@requires is_bitstring(s);
+//@requires string_length(s) == 7;
+{
+  int c = 0;
+
+  for (int i = 6; i >= 0; i = i - 1) 
+    //@loop_invariant 0 <= c && c <= 255;
+    {
+      int b = (string_charat(s,i) == '0' ? 0 : 1);
+      c = c + (b << i);
+    }
+
+  return char_chr(c);
+}
+
+string from_byte(char c)
+//ensures string_length(\result) == 7;
+{
+  string s = "";
+
+  int b = char_ord(c);
+
+  for (int i = 6; i >= 0; i = i - 1) 
+    //loop_invariant string_length(s) == 7 - (i + 1);
+    {
+      int bit = (b >> i) & 0x00000001;
+      s = string_join((bit == 0 ? "0" : "1"), s);
+    }
+
+  return s;
+}
+
+int bytessize(int bitstringsize) {
+  return bitstringsize / 7 + (bitstringsize % 7 > 0 ? 1 : 0);
+}
+
+string pad (int len)
+//@ensures string_length(\result) == len;
+{
+  string s = "";
+  for (int i = 0 ; i < len; i = i + 1)
+    {
+      s = string_join("0",s);
+    }
+  return s;
+}
+
+// FIXME pads with 0 -- arrange for that to be space?
+char[] to_bytes(string s)
+//@requires is_bitstring(s);
+//@ensures \length(\result) == bytessize(string_length(s));
+{
+  int len = string_length(s);
+  char[] r = alloc_array(char,bytessize(len));
+  
+  string cur = s;
+  for (int i = 0; i < bytessize(len); i = i + 1)
+    //@ loop_invariant 0 <= i;
+    {
+      int curlen = string_length(cur);
+      if (curlen >= 7)
+        {
+          r[i] = to_byte(string_sub(cur,0,7));
+          cur = string_sub(cur,7,curlen);
+        }
+      else {
+        r[i] = to_byte(string_join(string_sub(cur,0,curlen),pad(7 - curlen)));
+        cur = "";
+      }
+    }
+
+  return r;
+}
+
+string from_bytes(char[] c, int n)
+//@requires 0 <= n && n <= \length(c);
+//@ensures is_bitstring(\result);
+{
+  string r = "";
+  
+  for (int i = 0 ; i < n ; i = i + 1)
+    //@loop_invariant 0 <= i;
+    {
+      r = string_join(r, from_byte(c[i]));
+    }
+  return r;
+}
+
+bool test_from_to(string s)
+//@requires string_length(s) % 7 == 0;
+{
+  return string_equal(from_bytes(to_bytes(s), bytessize(string_length(s))) , s);
+}
+
