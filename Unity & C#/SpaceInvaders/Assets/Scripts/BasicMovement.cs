@@ -14,7 +14,7 @@ public class BasicMovement : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-
+		this.transform.position = new Vector3(6.5f,0.5f,-20.02f);
 	}
 	
 	// Update is called once per frame
@@ -80,5 +80,14 @@ public class BasicMovement : MonoBehaviour {
 		}
 	}
 
+	//handles when player hits the left boundary
+	public void hitLeftWall(){
+		transform.Translate(Vector3.right * 10 * Time.deltaTime);
+	}
+
+	//handles when player hits the right boundary
+	public void hitRightWall(){
+		transform.Translate(Vector3.left * 10 * Time.deltaTime);
+	}
 
 }

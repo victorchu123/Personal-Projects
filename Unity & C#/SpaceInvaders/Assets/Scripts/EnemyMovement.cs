@@ -3,7 +3,7 @@ using System.Collections;
 
 public class EnemyMovement : MonoBehaviour {
 
-	private int speed = 5;
+	int speed = 5;
 	private int direction = 1;
 	public int moveState = 0;
 	private float timer = 0.0f;
@@ -18,28 +18,31 @@ public class EnemyMovement : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
+
 		if (moveState == 0){
 			MoveLeftAndRight();
 		}
 		if(moveState == 1){
 			MoveDown();
 		}
-		
 	}
 
 	//moves object left until wall is hit; same thing with right direction
 	private void MoveLeftAndRight(){
 		transform.Translate(Vector3.right * speed * direction* Time.deltaTime);
 		justSwitched = false;
-		
 	}
 
 	//moves object down every 0.6 secs
 	private void MoveDown(){
+		speed = 5;
 		transform.Translate(Vector3.down * speed * Time.deltaTime);
 		timer += Time.deltaTime;
 		if(timer>0.5f){
 			SwitchDirection();
+		}
+		else if (timer > 1.0f){
+			speed = 10;
 		}
 	}
 
