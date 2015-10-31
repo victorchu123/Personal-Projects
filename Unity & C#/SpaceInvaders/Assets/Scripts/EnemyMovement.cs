@@ -35,14 +35,10 @@ public class EnemyMovement : MonoBehaviour {
 
 	//moves object down every 0.6 secs
 	private void MoveDown(){
-		speed = 5;
 		transform.Translate(Vector3.down * speed * Time.deltaTime);
 		timer += Time.deltaTime;
 		if(timer>0.5f){
 			SwitchDirection();
-		}
-		else if (timer > 1.0f){
-			speed = 10;
 		}
 	}
 

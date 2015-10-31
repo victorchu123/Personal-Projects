@@ -8,7 +8,7 @@ public class BasicMovement : MonoBehaviour {
 	public Text livesText;
 	private int lives = 3;
 	public Text scoreText; 
-	private int score = 0;
+	public int score = 0;
 
 
 
