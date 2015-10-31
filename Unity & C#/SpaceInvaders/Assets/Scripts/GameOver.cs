@@ -12,6 +12,8 @@ public class GameOver : MonoBehaviour {
 	void Update () {
 	
 	}
+
+	//loads gameover scene in unity3d
 	public void PlayAgain(){
 		Application.LoadLevel("GameScene");
 	}

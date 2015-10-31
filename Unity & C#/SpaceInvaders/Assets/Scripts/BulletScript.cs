@@ -22,6 +22,8 @@ public class BulletScript : MonoBehaviour {
 			Destroy(this.gameObject);
 		}
 	}
+
+	//handles collision for when bullet collides with space invaders;
 	void OnTriggerEnter(Collider other){
 		if(other.GetComponent<Collider>().tag == "Enemy"){
 			if(enemyAlive){
@@ -39,5 +41,4 @@ public class BulletScript : MonoBehaviour {
 		}	
 
 	}
-
 }

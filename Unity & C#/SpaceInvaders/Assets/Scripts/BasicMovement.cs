@@ -54,6 +54,7 @@ public class BasicMovement : MonoBehaviour {
 		
 	}
 
+	//method called when object is hit.
 	public void LoseLives(){
 
 			if(lives>1){
@@ -64,11 +65,15 @@ public class BasicMovement : MonoBehaviour {
 				Application.LoadLevel("GameOver");
 			}
 	}
+
+	//increases score for killing smaller space invaders
 	public void gainMinScore(){
 		if(score >= 0){
 			score += 10;
 		}
 	}
+
+	//increases score for killing larger space invaders
 	public void gainMaxScore(){
 		if(score >= 0){
 			score += 50;

@@ -3,7 +3,6 @@ using System.Collections;
 
 public class BossBulletScript : MonoBehaviour {
 	public bool bossAlive = true;
-	//private int bossLives = 3;
 
 	// Use this for initialization
 	void Start () {
@@ -16,11 +15,9 @@ public class BossBulletScript : MonoBehaviour {
 		if(Camera.main.WorldToViewportPoint(this.transform.position).y > 1){
 			Destroy (this.gameObject);
 		}
-		/*if(bossLives == 0){
-			bossAlive = false;
-		}*/
 	}
 
+	//handles collision with the larger space invader or the platform object
 	void OnTriggerEnter(Collider other){
 	
 		if(other.GetComponent<Collider>().tag == "Boss"){
@@ -32,13 +29,5 @@ public class BossBulletScript : MonoBehaviour {
 			Destroy (other.gameObject);
 			Destroy (this.gameObject);
 		}
-			/*bossLives--;
-			Destroy (this.gameObject);
-		}
-		if (bossAlive == false){
-			Destroy(this.gameObject);
-			Destroy(other.gameObject);
-		}*/
-		
 	}
 }

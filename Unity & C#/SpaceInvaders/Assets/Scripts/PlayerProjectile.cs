@@ -15,6 +15,8 @@ public class PlayerProjectile : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+
+		//when player is alive, space bar launches a bullet
 		if(newBS.playerAlive == true){
 			timer += Time.deltaTime;
 			if((Input.GetKey (KeyCode.Space) || Input.GetMouseButtonDown(0)) && timer > 0.5f){

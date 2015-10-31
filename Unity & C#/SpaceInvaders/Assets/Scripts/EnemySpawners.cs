@@ -21,8 +21,10 @@ public class EnemySpawners : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-	
+		//random enemy spawner when player is still alive
 		if(newBS.playerAlive == true){
+
+			// spawns 4 groups of normal space invaders every 1.1 secs
 			if(count < 5){
 				timer += Time.deltaTime;
 				if(timer > 1.0f){
@@ -34,6 +36,8 @@ public class EnemySpawners : MonoBehaviour {
 					count++;
 				}
 			}
+			// once 4 groups are spawned, a boss is spawned with 5 space invaders every 11 secs
+			// spawns 4 total groups and then stops
 			else if(count >= 5 && count <=8){
 				timer += Time.deltaTime;
 				if(timer > 10.0f){
@@ -52,9 +56,7 @@ public class EnemySpawners : MonoBehaviour {
 					count++;
 				}
 			}
-			else{
-
-			}
+			
 		}
 	}
 }

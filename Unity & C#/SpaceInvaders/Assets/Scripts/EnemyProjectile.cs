@@ -18,6 +18,7 @@ public class EnemyProjectile : MonoBehaviour {
 	void Update () {
 		if(newBS.enemyAlive == true){
 			timer += Time.deltaTime;
+			//boss space invader shoots out bullets every 1.3 secs
 			if(timer > 1.2f){
 				Instantiate(bullet, spawnPosObj.transform.position, Quaternion.identity);
 				timer = 0.0f;

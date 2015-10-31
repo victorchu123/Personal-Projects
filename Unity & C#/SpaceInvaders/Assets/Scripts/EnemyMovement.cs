@@ -27,12 +27,14 @@ public class EnemyMovement : MonoBehaviour {
 		
 	}
 
+	//moves object left until wall is hit; same thing with right direction
 	private void MoveLeftAndRight(){
 		transform.Translate(Vector3.right * speed * direction* Time.deltaTime);
 		justSwitched = false;
 		
 	}
 
+	//moves object down every 0.6 secs
 	private void MoveDown(){
 		transform.Translate(Vector3.down * speed * Time.deltaTime);
 		timer += Time.deltaTime;
@@ -41,6 +43,7 @@ public class EnemyMovement : MonoBehaviour {
 		}
 	}
 
+	//handles collision with a wall
 	public void HitAWall(){
 		if(moveState == 0 && !justSwitched){
 			moveState = 1;
@@ -48,6 +51,7 @@ public class EnemyMovement : MonoBehaviour {
 		
 	}
 
+	//switches object's current moving direction
 	private void SwitchDirection(){
 		direction *= -1;
 		timer = 0;

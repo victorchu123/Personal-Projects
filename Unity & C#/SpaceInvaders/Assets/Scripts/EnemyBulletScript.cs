@@ -2,9 +2,8 @@
 using System.Collections;
 
 public class EnemyBulletScript : MonoBehaviour {
-	public bool playerAlive = true;
+
 	private BasicMovement playerScript;
-	private bool playerHit = false;
 
 
 	// Use this for initialization
@@ -18,28 +17,19 @@ public class EnemyBulletScript : MonoBehaviour {
 		if(Camera.main.WorldToViewportPoint(this.transform.position).y > 1){
 			Destroy(this.gameObject);
 		}
-
 	}
+
+	//handles bullet collision with player and platform
 	void OnTriggerEnter(Collider other){
-		if (playerHit == false){
 			if(other.GetComponent<Collider>().tag == "Player"){
-				//playerHit = true;
 				playerScript.LoseLives();
 				other.GetComponent<AudioSource>().Play();
 				Destroy (this.gameObject);
-				//StartCoroutine(Wait ());
-				//playerHit = false;
-
 			}
 			if(other.GetComponent<Collider>().tag == "Platform"){
 				Destroy (other.gameObject);
 				Destroy (this.gameObject);
 			}
-		}
-	}
-	/*IEnumerator Wait(){
-		yield return new WaitForSeconds(3);
-		Debug.Log ("I do something");
-	}*/
-
+	 }
+	
 }
