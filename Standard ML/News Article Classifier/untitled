@@ -1,0 +1,8 @@
+
+
+
+
+CatEC.ExtractCombine
+(fn (c,s) =>  Seq.map(fn cat=> (cat,(1,
+Seq.mapreduce (fn s => WordDict.insert WordDict.empty(s,1)) (WordDict.empty)(WordDict.merge (fn (v1,v2) => v1+v2)) s))) c)
+(fn ((vx1,vx2),(c1,c2))=> (vx1+c1,WordDict.merge (fn(x,y)=>x+y) (vx2,c2))) docs
