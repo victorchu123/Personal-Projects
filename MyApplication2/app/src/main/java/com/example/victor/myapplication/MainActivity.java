@@ -39,7 +39,7 @@ public class MainActivity extends Activity implements Scanner.SyncListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my);
 
-        //Log.d(TAG, "Application opened.")
+        Log.d(TAG, "Application opened.");
 
         //what happens if camera is compatible
 
@@ -50,9 +50,9 @@ public class MainActivity extends Activity implements Scanner.SyncListener {
                 scanner = Scanner.get();
                 String path = Scanner.pathFromFilesDir(this, "scanner.db");
                 Log.d("Main", path);
-               // scanner.open(path, API_KEY, API_SECRET);
+                scanner.open(path, API_KEY, API_SECRET);
 
-                //API scanning process
+                //API syncing process
                 scanner.setSyncListener(this);
                 scanner.sync();
 
@@ -73,18 +73,13 @@ public class MainActivity extends Activity implements Scanner.SyncListener {
     }
 
 
-    //on scanning button press
+    //on "Existing Key" button press
 
     public void onScanButtonClicked(View view) {
         //starts moodstocks scanner api
-        if (compatible) {
-            startActivity(new Intent(this, ScanActivity.class));
-
-        }
-        catch(Exception e){
-            e.printStackTrace();
-
-        }
+            if(compatible){
+                startActivity(new Intent(this, ScanActivity.class));
+            }
     }
 
 
@@ -158,7 +153,7 @@ public class MainActivity extends Activity implements Scanner.SyncListener {
         Log.d(TAG, "Sync progressing: " + percent + "%");
 
     }
-    //on capture button press, start captureactivity.java
+    //on "New Key" button press, start captureactivity.java
     public void onCaptureButtonClicked(View view){
 
         try{

@@ -91,14 +91,6 @@ public class CaptureActivity extends Activity {
 
         setContentView(R.layout.activity_capture);
 
-        //Switch flashSwitch = (Switch) findViewById(R.id.switch1);
-
-        //flashSwitch.bringToFront();
-
-        //ImageButton imgBtn = (ImageButton) findViewById(R.id.takePhoto);
-
-        //imgBtn.bringToFront();
-
         cameraObject = isCameraAvailiable();
         showCamera = new ShowCamera(this, cameraObject);
 
@@ -233,44 +225,5 @@ public class CaptureActivity extends Activity {
         }
         imageNum++;
     }
-
-    //testing some code for when flash button pressed
-
-  /*  public void flashPressed(View view) {
-
-        new Checkable() {
-            @Override
-            public void setChecked(boolean checked) {
-
-                if (checked == true){
-
-                    Camera cam = Camera.open();
-                    Camera.Parameters p = cam.getParameters();
-                    p.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
-                    cam.setParameters(p);
-                    cam.startPreview();
-
-                }
-                else{
-
-                    Camera cam = Camera.open();
-                    cam.stopPreview();
-                    cam.release();
-                }
-            }
-
-            @Override
-            public boolean isChecked() {
-                return false;
-            }
-
-            @Override
-            public void toggle() {
-
-            }
-
-    };
-*/
-
 }
 

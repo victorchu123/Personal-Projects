@@ -20,6 +20,7 @@ import com.moodstocks.android.Scanner;
 
 public class ScanActivity extends Activity implements AutoScannerSession.Listener {
 
+    private static final int TYPES = Result.Type.IMAGE | Result.Type.QRCODE | Result.Type.EAN13;
     private AutoScannerSession session = null;
 
     //sets new surfaceview for scanning/image recog.
@@ -32,6 +33,7 @@ public class ScanActivity extends Activity implements AutoScannerSession.Listene
 
         try {
             session = new AutoScannerSession(this, Scanner.get(), this, preview);
+            session.setResultTypes(TYPES);
         } catch (MoodstocksError e) {
             e.printStackTrace();
         }
