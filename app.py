@@ -61,6 +61,8 @@ class Entry(flask_db.Model):
     content = TextField()
     published = BooleanField(index=True)
     timestamp = DateTimeField(default=datetime.datetime.now, index=True)
+    #info  = TextField()
+    #date = TextField()
 
     @property
     def html_content(self):
@@ -198,7 +200,8 @@ def create():
             entry = Entry.create(
                 title=request.form['title'],
                 content=request.form['content'],
-                published=request.form.get('published') or False)
+                published=request.form.get('published')
+                 or False)
             flash('Entry created successfully.', 'success')
             if entry.published:
                 return redirect(url_for('detail', slug=entry.slug))
