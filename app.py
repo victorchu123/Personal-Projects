@@ -3,9 +3,11 @@ import functools
 import os
 import re
 import urllib
+import scraper_to_db
 
 from flask import (Flask, flash, Markup, redirect, render_template, request,
                    Response, session, url_for)
+
 from markdown import markdown
 from markdown.extensions.codehilite import CodeHiliteExtension
 from markdown.extensions.extra import ExtraExtension
@@ -38,12 +40,12 @@ SITE_WIDTH = 800
 
 
 # Create a Flask WSGI app and configure it using values from the module.
-app = Flask(__name__)
-app.config.from_object(__name__)
+application = Flask(__name__)
+application.config.from_object(__name__)
 
 # FlaskDB is a wrapper for a peewee database that sets up pre/post-request
 # hooks for managing database connections.
-flask_db = FlaskDB(app)
+flask_db = FlaskDB(application)
 
 # The `database` is the actual peewee database, as opposed to flask_db which is
 # the wrapper.
@@ -63,6 +65,7 @@ class Entry(flask_db.Model):
     timestamp = DateTimeField(default=datetime.datetime.now, index=True)
     info  = TextField()
     date = DateField()
+    Rating = IntegerField()
 
     @property
     def html_content(self):
@@ -78,7 +81,7 @@ class Entry(flask_db.Model):
             markdown_content,
             oembed_providers,
             urlize_all=True,
-            maxwidth=app.config['SITE_WIDTH'])
+            maxwidth=application.config['SITE_WIDTH'])
         return Markup(oembed_content)
 
     def save(self, *args, **kwargs):
@@ -151,14 +154,14 @@ def login_required(fn):
         return redirect(url_for('login', next=request.path))
     return inner
 
-@app.route('/login/', methods=['GET', 'POST'])
+@application.route('/login/', methods=['GET', 'POST'])
 def login():
     next_url = request.args.get('next') or request.form.get('next')
     if request.method == 'POST' and request.form.get('password'):
         password = request.form.get('password')
         # TODO: If using a one-way hash, you would also hash the user-submitted
         # password and do the comparison on the hashed versions.
-        if password == app.config['ADMIN_PASSWORD']:
+        if password == application.config['ADMIN_PASSWORD']:
             session['logged_in'] = True
             session.permanent = True  # Use cookie to store session.
             flash('You are now logged in.', 'success')
@@ -167,15 +170,26 @@ def login():
             flash('Incorrect password.', 'danger')
     return render_template('login.html', next_url=next_url)
 
-@app.route('/logout/', methods=['GET', 'POST'])
+@application.route('/logout/', methods=['GET', 'POST'])
 def logout():
     if request.method == 'POST':
         session.clear()
         return redirect(url_for('login'))
     return render_template('logout.html')
 
-@app.route('/')
+
+
+@application.route('/', methods=['GET', 'POST'])
 def index():
+    if request.method == 'POST':
+        if request.form.get('title') and request.form.get('content'):
+            entry = Entry.update(
+                Rating = request.form.get('Rating')
+                 or False)
+            flash('Rating created successfully.', 'success')
+
+    if (datetime.datetime.today().hour > 12):
+        scraper_to_db.getAllInfo()
     search_query = request.args.get('q')
     if search_query:
         query = Entry.search(search_query)
@@ -192,7 +206,11 @@ def index():
         search=search_query,
         check_bounds=False)
 
-@app.route('/create/', methods=['GET', 'POST'])
+
+if __name__ == "__main__":
+    application.run(host='0.0.0.0')
+
+@application.route('/create/', methods=['GET', 'POST'])
 @login_required
 def create():
     if request.method == 'POST':
@@ -211,13 +229,13 @@ def create():
             flash('Title and Content are required.', 'danger')
     return render_template('create.html')
 
-@app.route('/drafts/')
+@application.route('/drafts/')
 @login_required
 def drafts():
     query = Entry.drafts().order_by(Entry.timestamp.desc())
     return object_list('index.html', query, check_bounds=False)
 
-@app.route('/<slug>/')
+@application.route('/<slug>/')
 def detail(slug):
     if session.get('logged_in'):
         query = Entry.select()
@@ -226,7 +244,7 @@ def detail(slug):
     entry = get_object_or_404(query, Entry.slug == slug)
     return render_template('detail.html', entry=entry)
 
-@app.route('/<slug>/edit/', methods=['GET', 'POST'])
+@application.route('/<slug>/edit/', methods=['GET', 'POST'])
 @login_required
 def edit(slug):
     entry = get_object_or_404(Entry, Entry.slug == slug)
@@ -247,7 +265,7 @@ def edit(slug):
 
     return render_template('edit.html', entry=entry)
 
-@app.template_filter('clean_querystring')
+@application.template_filter('clean_querystring')
 def clean_querystring(request_args, *keys_to_remove, **new_values):
     # We'll use this template filter in the pagination include. This filter
     # will take the current URL and allow us to preserve the arguments in the
@@ -260,13 +278,13 @@ def clean_querystring(request_args, *keys_to_remove, **new_values):
     querystring.update(new_values)
     return urllib.urlencode(querystring)
 
-@app.errorhandler(404)
+@application.errorhandler(404)
 def not_found(exc):
     return Response('<h3>Not found</h3>'), 404
 
 def main():
     database.create_tables([Entry, FTSEntry], safe=True)
-    app.run(debug=True)
+    application.run(debug=True)
 
 if __name__ == '__main__':
     main()

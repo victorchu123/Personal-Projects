@@ -4,3 +4,9 @@ micawber
 pygments
 markdown
 peewee
+lxml
+requests
+python-dateutil
+markdown
+micawber
+peewee

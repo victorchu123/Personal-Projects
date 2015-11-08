@@ -30,4 +30,4 @@ def getAllInfo():
 	for i in range(len(manmade.indexsearch())):
 		insert_post(manmade.pagesearch(manmade.indexsearch()[i]))
 
-# test function: getAllInfo()
+# getAllInfo()
