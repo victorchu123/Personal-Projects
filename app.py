@@ -62,7 +62,7 @@ class Entry(flask_db.Model):
     published = BooleanField(index=True)
     timestamp = DateTimeField(default=datetime.datetime.now, index=True)
     info  = TextField()
-    date = TextField()
+    date = DateField()
 
     @property
     def html_content(self):
@@ -180,7 +180,7 @@ def index():
     if search_query:
         query = Entry.search(search_query)
     else:
-        query = Entry.public().order_by(Entry.timestamp.desc())
+        query = Entry.public().order_by(Entry.date.desc())
 
     # The `object_list` helper will take a base query and then handle
     # paginating the results if there are more than 20. For more info see

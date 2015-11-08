@@ -23,7 +23,7 @@ def insert_post(movieList):
 	                content= description,
 	                published= (datetime.datetime.now() > parse(movie_date + ' 8:00PM')) or False,
 	                info = info,
-	                date = movie_date)
+	                date = parse(movie_date).date())
 
 #runs insert_post on every quadruple in indexsearch/every week in a month
 def getAllInfo():
