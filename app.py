@@ -181,6 +181,7 @@ def logout():
 
 @application.route('/', methods=['GET', 'POST'])
 def index():
+<<<<<<< HEAD
     if request.method == 'POST':
         if request.form.get('title') and request.form.get('content'):
             entry = Entry.update(
@@ -190,6 +191,9 @@ def index():
 
     if (datetime.datetime.today().hour > 12):
         scraper_to_db.getAllInfo()
+=======
+    scraper_to_db.getAllInfo()
+>>>>>>> 7cd248b7a1f7dfc18db57c4d096929bf125dd6ef
     search_query = request.args.get('q')
     if search_query:
         query = Entry.search(search_query)
