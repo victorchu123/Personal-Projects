@@ -61,8 +61,8 @@ class Entry(flask_db.Model):
     content = TextField()
     published = BooleanField(index=True)
     timestamp = DateTimeField(default=datetime.datetime.now, index=True)
-    #info  = TextField()
-    #date = TextField()
+    info  = TextField()
+    date = TextField()
 
     @property
     def html_content(self):
