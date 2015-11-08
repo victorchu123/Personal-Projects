@@ -1,6 +1,8 @@
 from lxml import html
 import requests
 import re
+from dateutil.parser import parse
+from datetime import datetime
 
 #takes index page on wesleyan film series site and returns list of html extensions for dates
 def indexsearch():
@@ -29,3 +31,4 @@ def pagesearch(extension):
 	infolist = pagetree.xpath('//*[@class = "indent"]/text()')
 	descriptionlist = pagetree.xpath('//*[@class="indent"]/description/p/text()')
 	return zip(datelist,titlelist,infolist,descriptionlist)
+
