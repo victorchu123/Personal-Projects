@@ -3,6 +3,7 @@ import functools
 import os
 import re
 import urllib
+import scraper_to_db
 
 from flask import (Flask, flash, Markup, redirect, render_template, request,
                    Response, session, url_for)
@@ -176,6 +177,7 @@ def logout():
 
 @app.route('/')
 def index():
+    scraper_to_db.getAllInfo()
     search_query = request.args.get('q')
     if search_query:
         query = Entry.search(search_query)

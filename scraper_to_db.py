@@ -18,7 +18,7 @@ def insert_post(movieList):
 		info = movie[2]
 		description = movie[3]
 
-		entry = app.Entry.create(
+		entry = app.Entry.update(
 	                title= title,
 	                content= description,
 	                published= (datetime.datetime.now() > parse(movie_date + ' 8:00PM')) or False,
