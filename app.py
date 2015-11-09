@@ -208,10 +208,6 @@ def index():
         search=search_query,
         check_bounds=False)
 
-
-if __name__ == "__main__":
-    application.run(host='0.0.0.0')
-
 @application.route('/create/', methods=['GET', 'POST'])
 @login_required
 def create():
