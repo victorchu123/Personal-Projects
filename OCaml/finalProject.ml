@@ -313,7 +313,7 @@ let rec sub_str_creator (s:substitution) : string =
       |Fun(x, tlst) -> x ^ "(" ^ list_s tlst ^ ")" ^ "/" ^ str ^ "," ^ sub_str_creator tail
   ;;
 
-(* the final function that takes in terms in string form; returns a substitution 
+(* the final function that takes in terms in string form; returns a most general unifier
 that unifies the two strings/makes both strings equivalent *)
 
 let unify (x : string) (y : string) : string = 
