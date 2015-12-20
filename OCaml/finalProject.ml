@@ -314,7 +314,7 @@ let rec sub_str_creator (s:substitution) : string =
   ;;
 
 (* the final function that takes in terms in string form; returns a most general unifier
-that unifies the two strings/makes both strings equivalent *)
+that unifies the two strings/makes both strings equivalent or fails and raises an exception *)
 
 let unify (x : string) (y : string) : string = 
  "{"^sub_str_creator (unify_terms (parse x) (parse y))^"}"
