@@ -1,0 +1,91 @@
+/*
+ * Testing the text buffer implementation; instead of using a
+ * doubly-linked list of gap buffers, uses a doubly-linked list of
+ * chars.
+ * 
+ * Note that this is just for testing! This code allows the user's
+ * input to attempt removing things an empty buffer, adding things to
+ * a full buffer, and moving left or right off the end of an array. We
+ * would usually want to call error() in this situation rather than
+ * allowing user input to lead to a @requires violation.
+ *
+ * */
+
+#use <conio>
+#use <string>
+
+void visualize_dll_pt(dll_pt B)
+{
+  print("START");
+  for (dll* L = B->start->next; L != B->end; L = L->next) {
+    print(" <--> ");
+    if (L == B->point) print("_");
+    printchar('\''); printchar(L->data); printchar('\'');
+    if (L == B->point) print("_");
+  }
+  println(" <--> END");
+}
+
+void process_char(dll_pt B, char c) 
+{
+  if (c == '<') {
+    print("<= : ");
+    dll_pt_backward(B);
+  } else if (c == '>') {
+    print("=> : ");
+    dll_pt_forward(B);
+  } else if (c == '^') {
+    print("del: ");
+    dll_pt_delete(B); 
+  } else if (65 <= char_ord(c) && char_ord(c) <= 90) {
+    print("bef: ");
+    dll_pt_insert_before(B,c);
+  }
+  else if (97 <= char_ord(c) && char_ord(c) <= 122) {
+    print("aft: ");
+    dll_pt_insert_after(B,c);
+  }
+  else {
+    error("This only supports '<' (left), '>' (right), and '^' (delete) and 'A'-'Z' (insert before pt) and 'a'-'z' (insert after point)");
+  }
+}
+
+void process_string(dll_pt B, string s)
+{
+  int limit = string_length(s);
+  for(int i = 0; i < limit; i++) {
+    process_char(B, string_charat(s, i));
+    visualize_dll_pt(B);
+  }
+}
+
+int main() 
+{
+  println("Visualizing DLL with elem as char.");
+
+  dll_pt B = dll_pt_new('A');
+
+  print("Initial buffer: ");
+  visualize_dll_pt(B);
+  println("");
+  println("Now you can edit the buffer:");
+  println("The '<' character moves the point backwards");
+  println("The '>' character moves the point forwards");
+  println("The '^' character deletes");
+  println("A capital letter A-Z inserts BEFORE the point");
+  println("A lowercase letter a-z inserts AFTER the point");
+  println("");
+  print("Give actions (empty line quits): "); flush();
+  string s = readline();
+
+  while(!string_equal("", s)) {
+    print("     ");
+    visualize_dll_pt(B);
+    process_string(B, s);
+    print("Done. More actions? (empty line quits): "); flush();
+    s = readline();
+  }
+
+  println("Goodbye.");
+  return 0;
+}

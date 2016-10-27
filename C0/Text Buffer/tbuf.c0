@@ -1,5 +1,5 @@
 /*
- * Text buffers
+ * Text Buffer
  * 
  * The back end for a one-character text editor, a doubly-linked list
  * whose elements are 16-character gap buffers.
