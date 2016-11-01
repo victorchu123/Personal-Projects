@@ -1,6 +1,6 @@
 group is
 $/basis.cm
-../src/sequence/sources.cm
+src/sequence/sources.cm
 ordered.sig
 dict.sig
 sequtils.sig
