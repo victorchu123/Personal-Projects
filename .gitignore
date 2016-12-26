@@ -2,6 +2,7 @@
 bfg.jar
 *.meta
 
+/data/
 /[Ll]ibrary/
 /[Tt]emp/
 /[Oo]bj/
