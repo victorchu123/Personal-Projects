@@ -1,8 +1,9 @@
 .DS_Store
 bfg.jar
 *.meta
+*.txt.sim
 
-/data/
+/Standard ML/N-body Simulation/data 
 /[Ll]ibrary/
 /[Tt]emp/
 /[Oo]bj/
